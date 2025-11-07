@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd apps/server && pnpm install && pnpm postinstall && pnpm build",
+  "buildCommand": "cd apps/server && pnpm prisma migrate deploy && pnpm build",
   "outputDirectory": "apps/server/dist",
   "installCommand": "pnpm install",
   "framework": null,
