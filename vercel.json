@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "buildCommand": "cd apps/server && pnpm install && pnpm postinstall && pnpm build",
+  "outputDirectory": "apps/server/dist",
+  "installCommand": "pnpm install",
+  "framework": null,
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "DATABASE_TYPE": "@database_type",
+    "AUTH_CODE": "@auth_code",
+    "SERVER_ORIGIN_URL": "@server_origin_url",
+    "PLATFORM_URL": "@platform_url"
+  },
+  "functions": {
+    "api/index.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.ts"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/update",
+      "schedule": "35 5,17 * * *"
+    }
+  ]
+}
