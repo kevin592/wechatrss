@@ -70,7 +70,6 @@ const Feeds = () => {
   const [wxsLink, setWxsLink] = useState('');
 
   const [currentMpId, setCurrentMpId] = useState(id || '');
-  const [showRssLink, setShowRssLink] = useState(false);
 
   const handleConfirm = async () => {
     console.log('wxsLink', wxsLink);
@@ -165,12 +164,17 @@ const Feeds = () => {
             <Listbox
               aria-label="订阅源"
               emptyContent="暂无订阅"
-              onAction={(key) => setCurrentMpId(key as string)}
+              onAction={(key) => {
+                const mpId = key as string;
+                setCurrentMpId(mpId);
+                if (mpId === '') {
+                  navigate('/feeds');
+                }
+              }}
             >
               <ListboxSection showDivider>
                 <ListboxItem
                   key={''}
-                  href={`/feeds`}
                   className={isActive('') ? 'bg-primary-50 text-primary' : ''}
                   startContent={<Avatar name="ALL"></Avatar>}
                 >
@@ -192,20 +196,7 @@ const Feeds = () => {
                       key={item.id}
                       startContent={<Avatar src={item.mpCover}></Avatar>}
                     >
-                      <div className="flex justify-between items-center w-full">
-                        <span>{item.mpName}</span>
-                        <Tooltip content="在新窗口打开RSS订阅">
-                          <Link
-                            isExternal
-                            showAnchorIcon
-                            size="sm"
-                            href={`${serverOriginUrl}/feeds/${item.id}.atom`}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            RSS
-                          </Link>
-                        </Tooltip>
-                      </div>
+                      <span>{item.mpName}</span>
                     </ListboxItem>
                   );
                 }) || []}
@@ -340,32 +331,23 @@ const Feeds = () => {
                 </Tooltip>
 
                 <Divider orientation="vertical" />
-                <Switch
-                  size="sm"
-                  isSelected={showRssLink}
-                  onValueChange={setShowRssLink}
+                <Tooltip
+                  content={
+                    <div>
+                      可添加.atom/.rss/.json格式输出, limit=20&page=1控制分页
+                    </div>
+                  }
                 >
-                  显示RSS链接
-                </Switch>
-                {showRssLink && (
-                  <Tooltip
-                    content={
-                      <div>
-                        可添加.atom/.rss/.json格式输出, limit=20&page=1控制分页
-                      </div>
-                    }
+                  <Link
+                    size="sm"
+                    showAnchorIcon
+                    target="_blank"
+                    href={`${serverOriginUrl}/feeds/${currentMpInfo.id}.atom`}
+                    color="foreground"
                   >
-                    <Link
-                      size="sm"
-                      showAnchorIcon
-                      target="_blank"
-                      href={`${serverOriginUrl}/feeds/${currentMpInfo.id}.atom`}
-                      color="foreground"
-                    >
-                      RSS
-                    </Link>
-                  </Tooltip>
-                )}
+                    RSS
+                  </Link>
+                </Tooltip>
               </div>
             ) : (
               <div className="flex gap-2">
@@ -402,27 +384,14 @@ const Feeds = () => {
                 </Link>
                 <Divider orientation="vertical" />
                 <Link
-                  href="#"
-                  color="foreground"
-                  onClick={(ev) => {
-                    ev.preventDefault();
-                    setShowRssLink(!showRssLink);
-                  }}
                   size="sm"
+                  showAnchorIcon
+                  target="_blank"
+                  href={`${serverOriginUrl}/feeds/all.atom`}
+                  color="foreground"
                 >
-                  {showRssLink ? '隐藏RSS' : '显示RSS'}
+                  RSS
                 </Link>
-                {showRssLink && (
-                  <Link
-                    size="sm"
-                    showAnchorIcon
-                    target="_blank"
-                    href={`${serverOriginUrl}/feeds/all.atom`}
-                    color="foreground"
-                  >
-                    RSS
-                  </Link>
-                )}
               </div>
             )}
           </div>
