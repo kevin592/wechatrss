@@ -1,6 +1,7 @@
+// Updated port configuration
 const configuration = () => {
   const isProd = process.env.NODE_ENV === 'production';
-  const port = process.env.PORT || 4000;
+  const port = process.env.PORT || 52222;
   const host = process.env.HOST || '0.0.0.0';
 
   const maxRequestPerMinute = parseInt(

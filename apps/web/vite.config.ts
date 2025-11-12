@@ -16,6 +16,10 @@ const packageJson = JSON.parse(
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '/dash',
+  server: {
+    port: 15555,
+    host: '0.0.0.0'
+  },
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
   },

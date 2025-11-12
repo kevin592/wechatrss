@@ -10,10 +10,12 @@ import {
   Button,
   Spinner,
   Link,
+  Tooltip,
 } from '@nextui-org/react';
 import { trpc } from '@web/utils/trpc';
 import dayjs from 'dayjs';
 import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const ArticleList: FC = () => {
   const { id } = useParams();
@@ -30,6 +32,31 @@ const ArticleList: FC = () => {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     );
+
+  const { mutateAsync: exportMarkdown, isLoading: isExporting } =
+    trpc.article.exportMarkdown.useMutation({});
+
+  const handleExportMarkdown = async (articleId: string, title: string) => {
+    try {
+      const result = await exportMarkdown(articleId);
+
+      const blob = new Blob([result.markdown], { type: 'text/markdown;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${title.replace(/[^\p{L}\p{N}\s\-_.]/gu, '').slice(0, 50)}.md`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success('导出成功', {
+        description: `文章 "${title}" 已成功导出为Markdown格式`,
+      });
+    } catch (error: any) {
+      toast.error('导出失败', {
+        description: error.message || '导出Markdown时发生错误'
+      });
+    }
+  };
 
   const items = useMemo(() => {
     const items = data
@@ -69,6 +96,9 @@ const ArticleList: FC = () => {
           <TableColumn width={180} key="publishTime">
             发布时间
           </TableColumn>
+          <TableColumn width={80} key="actions">
+            操作
+          </TableColumn>
         </TableHeader>
         <TableBody
           isLoading={isLoading}
@@ -102,6 +132,26 @@ const ArticleList: FC = () => {
                     </TableCell>
                   );
                 }
+
+                if (columnKey === 'actions') {
+                  return (
+                    <TableCell>
+                      <Tooltip content="导出为Markdown">
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="light"
+                          color="primary"
+                          isLoading={isExporting}
+                          onPress={() => handleExportMarkdown(item.id, item.title)}
+                        >
+                          MD
+                        </Button>
+                      </Tooltip>
+                    </TableCell>
+                  );
+                }
+
                 return <TableCell>{value}</TableCell>;
               }}
             </TableRow>
